@@ -43,7 +43,10 @@ def main():
                 continue
 
             group, _ = process.extractOne(name, groups.keys())
-
+            
+            # API ref: Update a membership
+            # API ref: Get groups for a course (given by id)
+            # https://canvas.instructure.com/doc/api/groups.html#method.groups.context_index
             resp = requests.post(
                 url=f"{base_url}/groups/{groups[group]}/memberships",
                 headers=headers,
