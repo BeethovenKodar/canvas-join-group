@@ -1,5 +1,5 @@
 
-import requests, os, signal
+import requests, os, signal, json
 from dotenv import load_dotenv
 
 def main():
@@ -19,9 +19,9 @@ def main():
     resp_json = response.json()
 
     groups = {item['name'].lower(): item['id'] for item in resp_json}
-    # groups.update({'eh': 26109}) # 
+    groups.update({'eh': 26109}) # 
     priority = {
-        # 'eh' : 0,
+        'eh' : 0,
         'pendulum' : 1, 
         'forsyde radar' : 2, 
         'atlas-hgtd' : 3, 
@@ -35,29 +35,28 @@ def main():
     current_best_priority = len(priority)
     while current_best_priority > 1:
         for name in priority:
-            if current_best_priority == 1:
-                print("[X] Highest prio was successfully joined, exiting")
-                break
-            elif priority[name] >= current_best_priority:
-                continue
+            # if current_best_priority == 1:
+            #     print("[X] Highest prio was successfully joined, exiting")
+            #     break
+            # elif priority[name] >= current_best_priority:
+            #     continue
 
-            jsn = requests.post(
+            resp = requests.post(
                 url=f"{base_url}/groups/{groups[name]}/memberships",
                 headers=headers,
                 data = { 'user_id': 'self' }
-            ).json()
+            )
+            jsn = resp.json()
 
-            if 'errors' not in jsn.keys():
-                print(f"{name} ({priority[name]}) -> Joined, only try joining groups with prio better than {priority[name]} now")
+            if resp.status_code == 200:
+                print(f"[X] {name} ({priority[name]}) -> Joined, find better prio group now")
                 current_best_priority = priority[name]
+            elif resp.status_code == 403:
+                print(f"[!] {name} ({priority[name]}) -> Group not open yet")
+            elif resp.status_code == 400:
+                print(f"[!] {name} ({priority[name]}) -> {jsn['errors']['group_id'][0]['message']}")
             else:
-                def find_message(data):
-                    if isinstance(data, dict):
-                        return data.get('message') or find_message(data.get('errors', {}))
-                    elif isinstance(data, list):
-                        return next((find_message(item) for item in data), None)
-                    return None
-                print(f"[!] {name} ({priority[name]}) -> {find_message(jsn)}")
+                print(f"[!] Code is {resp.status_code}, {jsn}")
 
 
 if __name__ == '__main__':
