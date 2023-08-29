@@ -19,10 +19,10 @@ def main():
     resp_json = response.json()
 
     groups = {item['name'].lower(): item['id'] for item in resp_json}
-    groups.update({'eh': 26109})
+    # groups.update({'eh': 26109}) # 
     priority = {
-        'eh' : 0,
-        'pendulum' : 7, 
+        # 'eh' : 0,
+        'pendulum' : 1, 
         'forsyde radar' : 2, 
         'atlas-hgtd' : 3, 
         'embedded ai-noc' : 4, 
