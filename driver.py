@@ -28,6 +28,7 @@ def main():
             'pendulum', 
             'forsyde radar', 
             'atlas-hgtd', 
+            'becky 2.0',
             ' embedded ai-noc (task 5)', 
             'automateddriving',
             'das', 
@@ -36,6 +37,7 @@ def main():
             'electric vehicle'
         ]
     ]
+    print(priorities)
 
     current_best_priority = len(priorities)
     session = requests.Session()
@@ -56,16 +58,19 @@ def main():
                     headers=token,
                     data = { 'user_id': 'self' }
                 )
-                print(f"[!] {group} (prio {prio}) -> Group not open yet")
-                # time.sleep(0.1)
+                print(f"[{time.ctime()}] {group} (prio {prio}) -> Group not open yet")
+                # time.sleep(0.4)
 
             jsn = resp.json()
+            print(jsn)
             match resp.status_code:
                 case 200 : print(f"[S] {group} (prio: {prio}) -> Joined, find better prio group now") # OK
                 case 400 : print(f"[!] {group} (prio: {prio}) -> {jsn['errors']['group_id'][0]['message']}") # ERROR
                 case _   : print(f"[!] {group} (prio: {prio}) -> Returned {resp.status_code}: {jsn}") # UNEXPECTED
+
             if resp.status_code == 200:
                 current_best_priority = prio
+                break
 
     print("[S] Highest prio group was successfully joined, exiting")
 
